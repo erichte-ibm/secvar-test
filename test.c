@@ -129,6 +129,28 @@ char *test_name;
 #define COLOR_RESET	""
 #endif
 
+// Helper functions and macros to make test case writing easier
+
+// Semi-configurable assert, can use to jump to a clean up step on fail
+#define ASSERT_POST(a,b) if(!(a)){fprintf(stdout, "Assert '%s' failed at %s:%d...", #a, __FILE__, __LINE__);b;}
+#define ASSERT(a) ASSERT_POST(a, return 1)
+
+
+static int list_length(struct list_head *head)
+{
+	struct keystore_variable *var;
+	int i = 0;
+
+	list_for_each(head, var, link) {
+		i++;
+	}
+
+	return i;
+}
+
+
+// Entry point
+// TODO: do some real argparsing
 int main(int argc, char **argv)
 {
 	int ret;
@@ -145,7 +167,7 @@ int main(int argc, char **argv)
 		return ret;
 	}
 
-	printf("Running test %s...", test_name);
+	printf("Running test '%s'...", test_name);
 	ret = run_test();
 	if (ret)
 		printf(COLOR_RED "FAILED" COLOR_RESET "\n");
