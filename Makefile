@@ -4,7 +4,7 @@ SKIBOOT_PATH=../skiboot
 # Override this only if libstb isn't where it should be...
 LIBSTB=$(SKIBOOT_PATH)/libstb
 
-tests = $(patsubst %.c, %, $(wildcard tests/test_*.c))
+tests = $(patsubst %.c, %, $(wildcard test_*.c))
 
 
 all: $(tests)
