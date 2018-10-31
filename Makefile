@@ -7,11 +7,10 @@ LIBSTB=$(SKIBOOT_PATH)/libstb
 # Override to "BIG" for testing on big endian
 ENDIAN=LITTLE
 
-# Set to literally anything else to disable the color output
-COLOR=1
-ifeq ($(COLOR),1)
-  BUILD_COLOR=
-else
+
+# Set to 1 to disable the color output
+NO_COLOR=0
+ifeq ($(NO_COLOR),1)
   BUILD_COLOR=-DNO_COLOR
 endif
 
@@ -35,7 +34,7 @@ valgrind: $(addprefix valgrind_, $(tests))
 
 valgrind_%: %
 	@dd if=/dev/zero of=secboot.img bs=128k count=1 2> /dev/null
-	@valgrind ./$< $<.log
+	@valgrind --log-file=$<_valgrind.log --error-exitcode=1 ./$< $<.log >/dev/null && echo "$< passed valgrind"
 	@rm secboot.img
 
 clean:
