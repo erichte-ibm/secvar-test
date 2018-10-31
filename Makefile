@@ -27,9 +27,15 @@ all: $(tests)
 run: $(addprefix run_, $(tests))
 
 run_%: %
-# TODO: do we actually want to zero out the secboot.img for each test case? -> probably, might as well
 	@dd if=/dev/zero of=secboot.img bs=128k count=1 2> /dev/null
 	@./$< $<.log
+	@rm secboot.img
+
+valgrind: $(addprefix valgrind_, $(tests))
+
+valgrind_%: %
+	@dd if=/dev/zero of=secboot.img bs=128k count=1 2> /dev/null
+	@valgrind ./$< $<.log
 	@rm secboot.img
 
 clean:
