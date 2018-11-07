@@ -18,11 +18,59 @@ int run_test(void)
 	ASSERT(rc == OPAL_SUCCESS);
 	ASSERT(list_length(&active_bank_list) == 3);
 
+	// Test sequential nexts
 	size = 16;
-	secvar_next(buffer, &size, ACTIVE_BANK);
+	memset(buffer, 0x0, 16);
+	// first item
+	rc = secvar_next(buffer, &size, ACTIVE_BANK);
 	ASSERT(rc == OPAL_SUCCESS);
-	ASSERT(strncmp(buffer, "test1", 5));
+	ASSERT(!strncmp(buffer, "test1", 5));
 
+	// second item
+	rc = secvar_next(buffer, &size, ACTIVE_BANK);
+	ASSERT(rc == OPAL_SUCCESS);
+	ASSERT(!strncmp(buffer, "test2", 5));
+
+	// last item
+	rc = secvar_next(buffer, &size, ACTIVE_BANK);
+	ASSERT(rc == OPAL_SUCCESS);
+	ASSERT(!strncmp(buffer, "test3", 5));
+
+	// end-of-list
+	rc = secvar_next(buffer, &size, ACTIVE_BANK);
+	ASSERT(rc == OPAL_EMPTY);
+
+
+	/*** Time for a break to test bad parameters ***/
+	// NULL "return" buffer
+	size = 16;
+	rc = secvar_next(NULL, &size, ACTIVE_BANK);
+	ASSERT(rc == OPAL_PARAMETER);
+
+	// NULL size pointer
+	rc = secvar_next(buffer, NULL, ACTIVE_BANK);
+	ASSERT(rc == OPAL_PARAMETER);
+
+	// zero size
+	size = 0;
+	rc = secvar_next(buffer, &size, ACTIVE_BANK);
+	ASSERT(rc == OPAL_PARAMETER);
+
+	// Non-existing previous variable
+	size = 16;
+	strncpy(buffer, "foobar", 7);
+	rc = secvar_next(buffer, &size, ACTIVE_BANK);
+	ASSERT(rc == OPAL_PARAMETER);
+
+	// Bad section
+	rc = secvar_next(buffer, &size, 0);
+	ASSERT(rc == OPAL_PARAMETER);
+
+	// Insufficient buffer size
+	size = 1;
+	strncpy(buffer, "test1", 6);
+	rc = secvar_next(buffer, &size, ACTIVE_BANK);
+	ASSERT(rc == OPAL_PARTIAL);
 
 	return 0;
 }
