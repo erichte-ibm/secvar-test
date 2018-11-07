@@ -42,6 +42,22 @@ int run_test(void)
 	ASSERT(rc == OPAL_SUCCESS);
 	ASSERT(size == 4);
 
+
+	/**** Error/Bad param cases ****/
+	// NULL varsize
+	rc = secvar_read("test", buffer, NULL, ACTIVE_BANK);
+	ASSERT(rc == OPAL_PARAMETER);
+
+	// non-NULL buffer and zero varsize
+	size = 0;
+	rc = secvar_read("test", buffer, &size, ACTIVE_BANK);
+	ASSERT(rc == OPAL_PARAMETER);
+	
+	// Bad section
+	size = 4; // make this valid again
+	rc = secvar_read("test", buffer, &size, 0);
+	ASSERT(rc == OPAL_PARAMETER);
+
 	free(buffer);
 
 	return 0;

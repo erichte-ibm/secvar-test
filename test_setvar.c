@@ -9,6 +9,18 @@ int run_test(void)
 
 	char *buffer = malloc(16);
 
+	/*** Error/Bad Param checks ***/
+	// Bad section
+	rc = secvar_write("test", "data", 4, 0);
+	ASSERT(rc == OPAL_PARAMETER);
+
+	// Active lock enabled (forced)
+	active_lock = 1;
+	rc = secvar_write("test", "data", 4, ACTIVE_BANK);
+	ASSERT(rc == OPAL_PERMISSION);
+	active_lock = 0;
+
+
 	/*** GOOD PATH ***/
 	// Add variable
 	rc = secvar_write("test", "data", 4, ACTIVE_BANK);
