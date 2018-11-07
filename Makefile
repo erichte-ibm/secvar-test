@@ -22,21 +22,23 @@ all: $(tests)
 
 %: %.c $(LIBSTB)/secboot_part.c $(LIBSTB)/secboot_part.h $(LIBSTB)/keystore.c $(LIBSTB)/keystore.h test.c
 	@echo Building $@...
-	@gcc -o $@ $< -g -I$(SKIBOOT_PATH) -I$(SKIBOOT_PATH)/include -I$(LIBSTB) -DHAVE_$(ENDIAN)_ENDIAN $(BUILD_COLOR)
+	@gcc -o $@ $< -g -fprofile-arcs -ftest-coverage -I$(SKIBOOT_PATH) -I$(SKIBOOT_PATH)/include -I$(LIBSTB) -DHAVE_$(ENDIAN)_ENDIAN $(BUILD_COLOR)
 
 run: $(addprefix run_, $(tests))
 
 run_%: %
 	@dd if=/dev/zero of=secboot.img bs=128k count=1 2> /dev/null
-	@./$< $<.log
+	@mkdir -p log/$</
+	@./$< log/$</$<.log
 	@rm secboot.img
 
 valgrind: $(addprefix valgrind_, $(tests))
 
 valgrind_%: %
 	@dd if=/dev/zero of=secboot.img bs=128k count=1 2> /dev/null
-	@valgrind --log-file=$<_valgrind.log --error-exitcode=1 ./$< $<.log >/dev/null && echo "$< passed valgrind"
+	@mkdir -p log/$</
+	@valgrind --log-file=log/$</$<_valgrind.log --error-exitcode=1 ./$< log/$</$<.log >/dev/null && echo "$< passed valgrind"
 	@rm secboot.img
 
 clean:
-	rm -f secboot.img $(tests) *.log
+	rm -rf secboot.img $(tests) log/ *.gcov *.gcda *.gcno
