@@ -77,42 +77,43 @@ void _prlog(int log_level, const char* fmt, ...)
 }
 
 /**** Helper wrappers, so the caller doesn't have to cast ****/
-static int64_t secvar_read(char *buffer, uint64_t *varsize, char *varname, uint64_t flags)
+static int64_t secvar_read(char *varname, char *buffer, uint64_t *varsize, uint64_t flags)
 {
-	return opal_get_variable((uint64_t) buffer,
-							 (uint64_t) varsize,
-							 (uint64_t) varname,
-							 flags);
+	return opal_secvar_read(
+				(uint64_t) varname,
+				(uint64_t) buffer,
+				(uint64_t) varsize,
+				flags);
 }
 
 static int64_t secvar_write(char *varname, char *vardata, uint64_t varsize, uint64_t flags)
 {
-	return opal_set_variable((uint64_t) varname,
-							 (uint64_t) vardata,
-							 varsize,
-							 flags);
+	return opal_secvar_write((uint64_t) varname,
+				 (uint64_t) vardata,
+				 varsize,
+				 flags);
 }
 
 static int64_t secvar_next(char *varname, uint64_t *size, uint64_t flags)
 {
-	return opal_get_next_variable((uint64_t) varname,
-								  (uint64_t) size,
-								  flags);
+	return opal_secvar_read_next((uint64_t) varname,
+				     (uint64_t) size,
+				     flags);
 }
 
 static int64_t secvar_commit(uint64_t flags)
 {
-	return opal_secboot_commit(flags);
+	return opal_secvar_commit(flags);
 }
 
-static int64_t secvar_lock(uint64_t flags, uint64_t mode)
+static int64_t secvar_lock(uint64_t flags)
 {
-	return opal_lock_variables(flags, mode);
+	return opal_secvar_lock(flags);
 }
 
 static int64_t secvar_reload(void)
 {
-	return opal_reload_variables();
+	return opal_secvar_reload();
 }
 
 // To be defined by test case

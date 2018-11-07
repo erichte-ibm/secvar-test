@@ -18,7 +18,7 @@ int run_test(void)
 	ASSERT(list_length(&active_bank_list) == 1);
 
 	// Confirm variable exists and is correct
-	rc = secvar_read(buffer, &size, "test", ACTIVE_BANK);
+	rc = secvar_read("test", buffer, &size, ACTIVE_BANK);
 	ASSERT(rc == OPAL_SUCCESS);
 
 	ASSERT(!strncmp(buffer, "data", 4));
@@ -27,7 +27,7 @@ int run_test(void)
 	rc = secvar_write("test", "meow", 4, ACTIVE_BANK);
 	ASSERT(rc == OPAL_SUCCESS)
 
-	rc = secvar_read(buffer, &size, "test", ACTIVE_BANK);
+	rc = secvar_read("test", buffer, &size, ACTIVE_BANK);
 	ASSERT(rc == OPAL_SUCCESS);
 
 	ASSERT(!strncmp(buffer, "meow", 4));
@@ -40,7 +40,7 @@ int run_test(void)
 	ASSERT(rc == OPAL_SUCCESS);
 
 	// Should fail to find the variable.
-	rc = secvar_read(buffer, &size, "test", ACTIVE_BANK);
+	rc = secvar_read("test", buffer, &size, ACTIVE_BANK);
 	ASSERT(rc == OPAL_EMPTY)
 
 	// Confirm list is now empty
@@ -54,15 +54,15 @@ int run_test(void)
 
 	ASSERT(list_length(&active_bank_list) == 3);
 
-	rc = secvar_read(buffer, &size, "test1", ACTIVE_BANK);
+	rc = secvar_read("test1", buffer, &size, ACTIVE_BANK);
 	ASSERT(rc == OPAL_SUCCESS);
 	ASSERT(!strncmp(buffer, "data", 4));
 
-	rc = secvar_read(buffer, &size, "test2", ACTIVE_BANK);
+	rc = secvar_read("test2", buffer, &size, ACTIVE_BANK);
 	ASSERT(rc == OPAL_SUCCESS);
 	ASSERT(!strncmp(buffer, "meow", 4));
 
-	rc = secvar_read(buffer, &size, "test3", ACTIVE_BANK);
+	rc = secvar_read("test3", buffer, &size, ACTIVE_BANK);
 	ASSERT(rc == OPAL_SUCCESS);
 	ASSERT(!strncmp(buffer, "woof", 4));
 
@@ -72,13 +72,13 @@ int run_test(void)
 	ASSERT(rc == OPAL_SUCCESS);
 	ASSERT(list_length(&active_bank_list) == 2);
 
-	rc = secvar_read(buffer, &size, "test1", ACTIVE_BANK);
+	rc = secvar_read("test1", buffer, &size, ACTIVE_BANK);
 	ASSERT(rc == OPAL_SUCCESS);
 
-	rc = secvar_read(buffer, &size, "test2", ACTIVE_BANK);
+	rc = secvar_read("test2", buffer, &size, ACTIVE_BANK);
 	ASSERT(rc == OPAL_EMPTY); // should "fail" now
 
-	rc = secvar_read(buffer, &size, "test3", ACTIVE_BANK);
+	rc = secvar_read("test3", buffer, &size, ACTIVE_BANK);
 	ASSERT(rc == OPAL_SUCCESS);
 
 	// Delete the head variable
@@ -86,13 +86,13 @@ int run_test(void)
 	ASSERT(rc == OPAL_SUCCESS);
 	ASSERT(list_length(&active_bank_list) == 1);
 
-	rc = secvar_read(buffer, &size, "test1", ACTIVE_BANK);
+	rc = secvar_read("test1", buffer, &size, ACTIVE_BANK);
 	ASSERT(rc == OPAL_EMPTY); // should "fail" now
 
-	rc = secvar_read(buffer, &size, "test2", ACTIVE_BANK);
+	rc = secvar_read("test2", buffer, &size, ACTIVE_BANK);
 	ASSERT(rc == OPAL_EMPTY); // should still fail
 
-	rc = secvar_read(buffer, &size, "test3", ACTIVE_BANK);
+	rc = secvar_read("test3", buffer, &size, ACTIVE_BANK);
 	ASSERT(rc == OPAL_SUCCESS);
 
 
@@ -104,9 +104,8 @@ int run_test(void)
 	rc = secvar_write("test4", NULL, 0, ACTIVE_BANK);
 	ASSERT(list_length(&active_bank_list) == 1);
 
-	rc = secvar_read(buffer, &size, "test4", ACTIVE_BANK);
+	rc = secvar_read("test4", buffer, &size, ACTIVE_BANK);
 	ASSERT(rc == OPAL_EMPTY); // should still fail
-
 
 
 	free(buffer);
