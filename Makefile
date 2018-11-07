@@ -54,13 +54,16 @@ valgrind_%: %
 	@valgrind --log-file=log/$</$<_valgrind.log --error-exitcode=1 ./$< log/$</$<.log >/dev/null && echo "$< passed valgrind"
 	@rm secboot.img
 
-coverage: run
+coverage: purge_coverage run
 	@$(GCOVR)
 
-coverage_html: run
+coverage_html: purge_coverage run
 	@mkdir -p html
 	@$(GCOVR) $(GCOVR_HTML)
 
-clean:
-	rm -rf secboot.img log/ html/ *.gcov *.gcda *.gcno
+purge_coverage:
+	rm -rf html/ *.gcov *.gcda *.gcno
+
+clean: purge_coverage
+	rm -rf secboot.img log/
 	rm -f $(tests)
