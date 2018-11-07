@@ -54,6 +54,13 @@ valgrind_%: %
 	@valgrind --log-file=log/$</$<_valgrind.log --error-exitcode=1 ./$< log/$</$<.log >/dev/null && echo "$< passed valgrind"
 	@rm secboot.img
 
+# For debug or running individual cases in gdb
+secboot:
+	@dd if=/dev/zero of=secboot.img bs=128k count=1 2> /dev/null
+
+purge_coverage:
+	rm -rf html/ *.gcov *.gcda
+
 coverage: purge_coverage run
 	@$(GCOVR)
 
@@ -61,9 +68,7 @@ coverage_html: purge_coverage run
 	@mkdir -p html
 	@$(GCOVR) $(GCOVR_HTML)
 
-purge_coverage:
-	rm -rf html/ *.gcov *.gcda *.gcno
 
 clean: purge_coverage
-	rm -rf secboot.img log/
+	rm -rf secboot.img log/ *.gcno
 	rm -f $(tests)
