@@ -21,6 +21,7 @@ tests = $(patsubst %.c, %, $(wildcard test_*.c))
 all: $(tests)
 
 %: %.c $(LIBSTB)/secboot_part.c $(LIBSTB)/secboot_part.h $(LIBSTB)/keystore.c $(LIBSTB)/keystore.h test.c
+	@echo Building $@...
 	@gcc -o $@ $< -g -I$(SKIBOOT_PATH) -I$(SKIBOOT_PATH)/include -I$(LIBSTB) -DHAVE_$(ENDIAN)_ENDIAN $(BUILD_COLOR)
 
 run: $(addprefix run_, $(tests))
