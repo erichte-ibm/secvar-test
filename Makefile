@@ -22,7 +22,7 @@ endif
 
 GCOVR=$(shell which gcovr)
 ifneq ($(GCOVR), "")
-  GCOVR:=$(GCOVR) -r . -s
+  GCOVR += -r . -s
   GCOVR_HTML=--html --html-details -o html/coverage.html
 else
   GCOVR=echo "'gcovr' not installed, not displaying output. Install gcovr or run basic gcov manually."
