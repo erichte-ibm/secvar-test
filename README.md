@@ -9,8 +9,13 @@ Replacing `s/run/valgrind` will run an individual valgrind test.
 The above tests will abort running if any test fails.
 To run all the tests regardless of pass or fail, run with `make -k`.
 
-Each test will generate a `<test_name>.log` file containing all `prlog()` outputs.
+Each test will generate a `<test_name>.log` file containing all `prlog()` outputs in the `log/` directory.
 If running in `valgrind` mode, each test will also generate a `valgrind_<test_name>.log` file, for analyzing the complaints.
+
+If `gcovr` is installed, you may also run the `coverage` and `coverage_html` make targets.
+The former option will display the coverage information to stdout.
+Running `coverage_html` will output file-by-file coverage information in the `html/` directory.
+Compilations are done with `gcov` support enabled by default, so even without the useful `gcovr` utility, coverage reports can still be generated manually.
 
 `make clean` will remove all the garbage that **will** clutter the directory.
 
