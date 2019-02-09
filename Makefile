@@ -68,6 +68,8 @@ coverage_html: purge_coverage run
 	@mkdir -p html
 	@$(GCOVR) $(GCOVR_HTML)
 
+coverage_show: coverage_html
+	@xdg-open html/coverage.html
 
 clean: purge_coverage
 	rm -rf secboot.img log/ *.gcno
