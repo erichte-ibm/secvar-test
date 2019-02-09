@@ -11,10 +11,9 @@
 // Force p9
 enum proc_gen proc_gen = proc_gen_p9;
 
-#include "keystore.h"
-
 // Replace memalign with regular old malloc
 #define memalign(a, b) malloc(b)
+#define zalloc(a) calloc(1, a)
 
 /**** Stubs for translating PNOR I/O -> File I/O ****/
 int secboot_info(uint32_t *total_size)
@@ -63,8 +62,9 @@ struct platform platform = {
 };
 
 // Hack to include the code we actually want to test here...
-#include "secboot_part.c"
-#include "keystore.c"
+#include "secboot_p9.c"
+#include "secvar_api.c"
+#include "secvar.c"
 
 // For log file output instead of stdout
 FILE *outfile;
@@ -77,6 +77,7 @@ void _prlog(int log_level, const char* fmt, ...)
 }
 
 /**** Helper wrappers, so the caller doesn't have to cast ****/
+/*
 static int64_t secvar_read(char *varname, char *buffer, uint64_t *varsize, uint64_t flags)
 {
 	return opal_secvar_read(
@@ -115,6 +116,7 @@ static int64_t secvar_reload(void)
 {
 	return opal_secvar_reload();
 }
+*/
 
 // To be defined by test case
 int run_test(void);
@@ -139,7 +141,7 @@ char *test_name;
 
 static int list_length(struct list_head *head)
 {
-	struct keystore_variable *var;
+	struct secvar *var;
 	int i = 0;
 
 	list_for_each(head, var, link) {
@@ -161,7 +163,7 @@ int main(int argc, char **argv)
 	else
 		outfile = stdout;
 
-	ret = keystore_init();
+	ret = secvar_init();
 
 	if (ret) {
 		fprintf(stderr, "Something went wrong setting up the keystore...\n");
@@ -180,9 +182,9 @@ int main(int argc, char **argv)
 
 
 	// Clean up for the test cases
-	clear_bank_list(&active_bank_list);
-	clear_bank_list(&update_queue_list);
-	free(secboot);
+	clear_bank(&active_bank);
+	clear_bank(&update_bank);
+	free(secboot_image);
 
 	return ret;
 }

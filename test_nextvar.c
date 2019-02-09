@@ -4,73 +4,96 @@ char *test_name = "nextvar";
 
 int run_test(void)
 {
-	char buffer[16] = "data";
-	uint64_t size = 4;
 	int64_t rc;
+
+	struct secvar *tmpvar;
+
+	char name[1024] = {0};
+	char vendor[1024] = {0};	// TODO: use actual vendor here
+	uint32_t attributes = 0;
+	uint64_t size = 16;
+
 
 	// Load up the bank with some variables.
 	// If these fail, we have bigger issues.
-	rc = secvar_write("test1", buffer, size, ACTIVE_BANK);
-	ASSERT(rc == OPAL_SUCCESS);
-	rc = secvar_write("test2", buffer, size, ACTIVE_BANK);
-	ASSERT(rc == OPAL_SUCCESS);
-	rc = secvar_write("test3", buffer, size, ACTIVE_BANK);
-	ASSERT(rc == OPAL_SUCCESS);
-	ASSERT(list_length(&active_bank_list) == 3);
+	ASSERT(list_length(&active_bank) == 0);
+	tmpvar = zalloc(sizeof(struct secvar));
+	strncpy(tmpvar->name, "test1", 5);
+	tmpvar->attributes = 27;
+	tmpvar->data_size = 16;
+	tmpvar->data = zalloc(16); // unused
+	list_add_tail(&active_bank, &tmpvar->link);
+	ASSERT(list_length(&active_bank) == 1);
+
+	tmpvar = zalloc(sizeof(struct secvar));
+	strncpy(tmpvar->name, "test2", 5);
+	tmpvar->attributes = 32;
+	tmpvar->data_size = 10;
+	tmpvar->data = zalloc(10); // unused
+	list_add_tail(&active_bank, &tmpvar->link);
+	ASSERT(list_length(&active_bank) == 2);
+
+	tmpvar = zalloc(sizeof(struct secvar));
+	strncpy(tmpvar->name, "test3", 5);
+	tmpvar->attributes = 16;
+	tmpvar->data_size = 32;
+	tmpvar->data = zalloc(32); // unused
+	list_add_tail(&active_bank, &tmpvar->link);
+	ASSERT(list_length(&active_bank) == 3);
 
 	// Test sequential nexts
-	size = 16;
-	memset(buffer, 0x0, 16);
 	// first item
-	rc = secvar_next(buffer, &size, ACTIVE_BANK);
+	size = sizeof(name);
+	memset(name, 0, sizeof(name));
+	rc = opal_secvar_read_next(&size, name, vendor);
 	ASSERT(rc == OPAL_SUCCESS);
-	ASSERT(!strncmp(buffer, "test1", 5));
+	ASSERT(!strncmp(name, "test1", 5));
 
 	// second item
-	rc = secvar_next(buffer, &size, ACTIVE_BANK);
+	rc = opal_secvar_read_next(&size, name, vendor);
 	ASSERT(rc == OPAL_SUCCESS);
-	ASSERT(!strncmp(buffer, "test2", 5));
+	ASSERT(!strncmp(name, "test2", 5));
 
 	// last item
-	rc = secvar_next(buffer, &size, ACTIVE_BANK);
+	rc = opal_secvar_read_next(&size, name, vendor);
 	ASSERT(rc == OPAL_SUCCESS);
-	ASSERT(!strncmp(buffer, "test3", 5));
+	ASSERT(!strncmp(name, "test3", 5));
 
 	// end-of-list
-	rc = secvar_next(buffer, &size, ACTIVE_BANK);
+	rc = opal_secvar_read_next(&size, name, vendor);
 	ASSERT(rc == OPAL_EMPTY);
 
 
+	memset(name, 0, sizeof(name));
 	/*** Time for a break to test bad parameters ***/
-	// NULL "return" buffer
-	size = 16;
-	rc = secvar_next(NULL, &size, ACTIVE_BANK);
+	// null name
+	rc = opal_secvar_read_next(&size, NULL, vendor);
 	ASSERT(rc == OPAL_PARAMETER);
+	// null vendor
+	rc = opal_secvar_read_next(&size, name, NULL);
+	ASSERT(rc == OPAL_PARAMETER);
+	// Size too small
+	size = 16;
+	rc = opal_secvar_read_next(&size, name, vendor);
+	ASSERT(rc == OPAL_PARTIAL);
+	ASSERT(size == sizeof(name));
 
 	// NULL size pointer
-	rc = secvar_next(buffer, NULL, ACTIVE_BANK);
+	rc = opal_secvar_read_next(NULL, name, vendor);
 	ASSERT(rc == OPAL_PARAMETER);
 
 	// zero size
 	size = 0;
-	rc = secvar_next(buffer, &size, ACTIVE_BANK);
+	rc = opal_secvar_read_next(&size, name, vendor);
 	ASSERT(rc == OPAL_PARAMETER);
 
 	// Non-existing previous variable
-	size = 16;
-	strncpy(buffer, "foobar", 7);
-	rc = secvar_next(buffer, &size, ACTIVE_BANK);
+	size = 1024;
+	strncpy(name, "foobar", 7);
+	rc = opal_secvar_read_next(&size, name, vendor);
 	ASSERT(rc == OPAL_PARAMETER);
 
-	// Bad section
-	rc = secvar_next(buffer, &size, 0);
-	ASSERT(rc == OPAL_PARAMETER);
-
-	// Insufficient buffer size
-	size = 1;
-	strncpy(buffer, "test1", 6);
-	rc = secvar_next(buffer, &size, ACTIVE_BANK);
-	ASSERT(rc == OPAL_PARTIAL);
+	clear_bank(&active_bank);
 
 	return 0;
 }
