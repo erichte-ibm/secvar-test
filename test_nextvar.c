@@ -8,7 +8,7 @@ int run_test(void)
 
 	struct secvar *tmpvar;
 
-	char name[1024] = {0};
+	wchar_t name[1024] = {0};
 	char vendor[1024] = {0};	// TODO: use actual vendor here
 	uint32_t attributes = 0;
 	uint64_t size = 16;
@@ -18,7 +18,7 @@ int run_test(void)
 	// If these fail, we have bigger issues.
 	ASSERT(list_length(&active_bank) == 0);
 	tmpvar = zalloc(sizeof(struct secvar));
-	strncpy(tmpvar->name, "test1", 5);
+	memcpy(tmpvar->name, L"test1", 5*2);
 	tmpvar->attributes = 27;
 	tmpvar->data_size = 16;
 	tmpvar->data = zalloc(16); // unused
@@ -26,7 +26,7 @@ int run_test(void)
 	ASSERT(list_length(&active_bank) == 1);
 
 	tmpvar = zalloc(sizeof(struct secvar));
-	strncpy(tmpvar->name, "test2", 5);
+	memcpy(tmpvar->name, L"test2", 5*2);
 	tmpvar->attributes = 32;
 	tmpvar->data_size = 10;
 	tmpvar->data = zalloc(10); // unused
@@ -34,7 +34,7 @@ int run_test(void)
 	ASSERT(list_length(&active_bank) == 2);
 
 	tmpvar = zalloc(sizeof(struct secvar));
-	strncpy(tmpvar->name, "test3", 5);
+	memcpy(tmpvar->name, L"test3", 5*2);
 	tmpvar->attributes = 16;
 	tmpvar->data_size = 32;
 	tmpvar->data = zalloc(32); // unused
@@ -47,17 +47,17 @@ int run_test(void)
 	memset(name, 0, sizeof(name));
 	rc = opal_secvar_read_next(&size, name, vendor);
 	ASSERT(rc == OPAL_SUCCESS);
-	ASSERT(!strncmp(name, "test1", 5));
+	ASSERT(!memcmp(name, L"test1", 5*2));
 
 	// second item
 	rc = opal_secvar_read_next(&size, name, vendor);
 	ASSERT(rc == OPAL_SUCCESS);
-	ASSERT(!strncmp(name, "test2", 5));
+	ASSERT(!memcmp(name, L"test2", 5*2));
 
 	// last item
 	rc = opal_secvar_read_next(&size, name, vendor);
 	ASSERT(rc == OPAL_SUCCESS);
-	ASSERT(!strncmp(name, "test3", 5));
+	ASSERT(!memcmp(name, L"test3", 5*2));
 
 	// end-of-list
 	rc = opal_secvar_read_next(&size, name, vendor);
@@ -73,10 +73,10 @@ int run_test(void)
 	rc = opal_secvar_read_next(&size, name, NULL);
 	ASSERT(rc == OPAL_PARAMETER);
 	// Size too small
-	size = 16;
+	size = 1;
 	rc = opal_secvar_read_next(&size, name, vendor);
 	ASSERT(rc == OPAL_PARTIAL);
-	ASSERT(size == sizeof(name));
+	ASSERT(size == 10);
 
 	// NULL size pointer
 	rc = opal_secvar_read_next(NULL, name, vendor);
@@ -89,9 +89,17 @@ int run_test(void)
 
 	// Non-existing previous variable
 	size = 1024;
-	strncpy(name, "foobar", 7);
+	memcpy(name, L"foobar", 7*2);
 	rc = opal_secvar_read_next(&size, name, vendor);
 	ASSERT(rc == OPAL_PARAMETER);
+
+	memset(name, 1, sizeof(name));
+	rc = opal_secvar_read_next(&size, name, vendor);
+	ASSERT(rc == OPAL_PARAMETER);
+
+	secvar_enabled = 0;
+	rc = opal_secvar_read_next(&size, name, vendor);
+	ASSERT(rc == OPAL_HARDWARE);
 
 	clear_bank(&active_bank);
 

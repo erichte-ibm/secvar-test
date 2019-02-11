@@ -14,17 +14,20 @@ int run_test()
 	memcpy(platform_copy, &platform, sizeof(platform));
 
 	ASSERT(0 == secvar_init()); // Ideally this shouldn't crash
+	ASSERT(1 == secvar_enabled);
 
 	free(secboot_image);
 	secboot_image = NULL;
 
 	proc_gen = 0;
 	ASSERT(1 == secvar_init());
+	ASSERT(0 == secvar_enabled);
 	proc_gen = proc_gen_p9;
 
 	platform.secboot_info = NULL;
 
 	ASSERT(-1 == secvar_init());
+	ASSERT(0 == secvar_enabled);
 
 	memcpy(&platform, platform_copy, sizeof(platform));
 

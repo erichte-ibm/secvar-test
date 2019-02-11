@@ -13,12 +13,12 @@ int run_test(void)
 	uint64_t size = 4;
 
 	struct secvar var = {0};
-	char name[1024] = {0};
-	char vendor[128] = {0}; // TODO: copy real vendor here for a real test
+	wchar_t name[1024] = {0};
+	char vendor[16] = {0}; // TODO: copy real vendor here for a real test
 	uint32_t attributes = 0;
 	char *data = zalloc(16);
 	var.data = zalloc(16);
-	strcpy(name, "test");
+	memcpy(name, L"test", 4*2);
 
 	// List should be empty at start
 	rc = opal_secvar_read(name, vendor, &attributes, &size, data);
@@ -26,7 +26,7 @@ int run_test(void)
 	ASSERT(list_length(&active_bank) == 0);
 
 	// Manually add variables, and check get_variable call
-	strcpy(var.name, name);
+	memcpy(var.name, name, sizeof(L"test"));
 	memcpy(var.vendor, vendor, sizeof(vendor));
 	var.attributes = 27;
 	var.data_size = 16;
@@ -34,7 +34,7 @@ int run_test(void)
 	list_add_tail(&active_bank, &var.link);
 
 	ASSERT(list_length(&active_bank) == 1);
-	
+
 	// Test variable size query
 	size = 0;
 	rc = opal_secvar_read(name, vendor, &attributes, &size, NULL);
@@ -73,10 +73,20 @@ int run_test(void)
 	// zero size, NULL data
 	size = 0;
 	rc = opal_secvar_read(name, vendor, &attributes, &size, data);
-	ASSERT(rc == OPAL_PARAMETER);	
+	ASSERT(rc == OPAL_PARAMETER);
+
+	size = 16;
+	secvar_enabled = 0;
+	rc = opal_secvar_read(name, vendor, &attributes, &size, data);
+	ASSERT(rc == OPAL_HARDWARE);
+
+	secvar_enabled = 1;
+	memset(name, 1, sizeof(name));
+	rc = opal_secvar_read(name, vendor, &attributes, &size, data);
+
 
 	list_del(&var.link); // Clean up manually because we used the stack here
-	
+
 	free(data);
 	free(var.data);	
 

@@ -28,6 +28,10 @@ else
   GCOVR=echo "'gcovr' not installed, not displaying output. Install gcovr or run basic gcov manually."
 endif
 
+# needed because unicode is terrible.
+CFLAGS=-fshort-wchar
+
+
 tests = $(patsubst %.c, %, $(wildcard test_*.c))
 
 
@@ -36,7 +40,7 @@ all: $(tests)
 
 %: %.c $(LIBSTB)/secboot_p9.c $(LIBSTB)/secboot_p9.h $(LIBSTB)/secvar.c $(LIBSTB)/secvar.h $(LIBSTB)/secvar_api.c test.c
 	@echo Building $@...
-	@gcc -o $@ $< -g $(GCOV_FLAGS) -I$(SKIBOOT_PATH) -I$(SKIBOOT_PATH)/include -I$(LIBSTB) -DHAVE_$(ENDIAN)_ENDIAN $(BUILD_COLOR)
+	@gcc -o $@ $< -g $(GCOV_FLAGS) $(CFLAGS) -I$(SKIBOOT_PATH) -I$(SKIBOOT_PATH)/include -I$(LIBSTB) -DHAVE_$(ENDIAN)_ENDIAN $(BUILD_COLOR)
 
 run: $(addprefix run_, $(tests))
 
