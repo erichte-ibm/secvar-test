@@ -2,7 +2,7 @@
 
 char *test_name = "getvar";
 
-// Run tests on the less obvious features of secvar_read
+// Run tests on the less obvious features of secvar_get
 // Includes:
 //  - Partial reads
 //  - Size queries (NULL buffer)
@@ -21,7 +21,7 @@ int run_test(void)
 	memcpy(name, L"test", 4*2);
 
 	// List should be empty at start
-	rc = opal_secvar_read(name, vendor, &attributes, &size, data);
+	rc = secvar_get(name, vendor, &attributes, &size, data);
 	ASSERT(rc == OPAL_EMPTY);
 	ASSERT(list_length(&active_bank) == 0);
 
@@ -37,13 +37,13 @@ int run_test(void)
 
 	// Test variable size query
 	size = 0;
-	rc = opal_secvar_read(name, vendor, &attributes, &size, NULL);
+	rc = secvar_get(name, vendor, &attributes, &size, NULL);
 	ASSERT(rc == OPAL_SUCCESS);
 	ASSERT(size == 16);
 	// TODO: assert attributes?
 
 	// Test actual variable get
-	rc = opal_secvar_read(name, vendor, &attributes, &size, data);
+	rc = secvar_get(name, vendor, &attributes, &size, data);
 	ASSERT(0 == memcmp(name, var.name, sizeof(var.name)));
 	ASSERT(0 == memcmp(vendor, var.vendor, sizeof(var.vendor)));
 	ASSERT(27 == attributes);
@@ -52,37 +52,37 @@ int run_test(void)
 
 	// Test buffer too small
 	size = 14;
-	rc = opal_secvar_read(name, vendor, &attributes, &size, data);
+	rc = secvar_get(name, vendor, &attributes, &size, data);
 	ASSERT(rc == OPAL_PARTIAL);
 	ASSERT(size == 16);
 
 	/**** Error/Bad param cases ****/
 	// NULL name
-	rc = opal_secvar_read(NULL, vendor, &attributes, &size, data);
+	rc = secvar_get(NULL, vendor, &attributes, &size, data);
 	ASSERT(rc == OPAL_PARAMETER);
 	// NULL vendor
-	rc = opal_secvar_read(name, NULL, &attributes, &size, data);
+	rc = secvar_get(name, NULL, &attributes, &size, data);
 	ASSERT(rc == OPAL_PARAMETER);
 	// NULL size
-	rc = opal_secvar_read(name, vendor, &attributes, NULL, data);
+	rc = secvar_get(name, vendor, &attributes, NULL, data);
 	ASSERT(rc == OPAL_PARAMETER);
 	// nonzero size, but NULL data
 	size = 16;
-	rc = opal_secvar_read(name, vendor, &attributes, &size, NULL);
+	rc = secvar_get(name, vendor, &attributes, &size, NULL);
 	ASSERT(rc == OPAL_PARAMETER);
 	// zero size, NULL data
 	size = 0;
-	rc = opal_secvar_read(name, vendor, &attributes, &size, data);
+	rc = secvar_get(name, vendor, &attributes, &size, data);
 	ASSERT(rc == OPAL_PARAMETER);
 
 	size = 16;
 	secvar_enabled = 0;
-	rc = opal_secvar_read(name, vendor, &attributes, &size, data);
+	rc = secvar_get(name, vendor, &attributes, &size, data);
 	ASSERT(rc == OPAL_HARDWARE);
 
 	secvar_enabled = 1;
 	memset(name, 1, sizeof(name));
-	rc = opal_secvar_read(name, vendor, &attributes, &size, data);
+	rc = secvar_get(name, vendor, &attributes, &size, data);
 
 
 	list_del(&var.link); // Clean up manually because we used the stack here

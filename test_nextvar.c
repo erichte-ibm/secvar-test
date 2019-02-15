@@ -45,60 +45,60 @@ int run_test(void)
 	// first item
 	size = sizeof(name);
 	memset(name, 0, sizeof(name));
-	rc = opal_secvar_read_next(&size, name, vendor);
+	rc = secvar_get_next(&size, name, vendor);
 	ASSERT(rc == OPAL_SUCCESS);
 	ASSERT(!memcmp(name, L"test1", 5*2));
 
 	// second item
-	rc = opal_secvar_read_next(&size, name, vendor);
+	rc = secvar_get_next(&size, name, vendor);
 	ASSERT(rc == OPAL_SUCCESS);
 	ASSERT(!memcmp(name, L"test2", 5*2));
 
 	// last item
-	rc = opal_secvar_read_next(&size, name, vendor);
+	rc = secvar_get_next(&size, name, vendor);
 	ASSERT(rc == OPAL_SUCCESS);
 	ASSERT(!memcmp(name, L"test3", 5*2));
 
 	// end-of-list
-	rc = opal_secvar_read_next(&size, name, vendor);
+	rc = secvar_get_next(&size, name, vendor);
 	ASSERT(rc == OPAL_EMPTY);
 
 
 	memset(name, 0, sizeof(name));
 	/*** Time for a break to test bad parameters ***/
 	// null name
-	rc = opal_secvar_read_next(&size, NULL, vendor);
+	rc = secvar_get_next(&size, NULL, vendor);
 	ASSERT(rc == OPAL_PARAMETER);
 	// null vendor
-	rc = opal_secvar_read_next(&size, name, NULL);
+	rc = secvar_get_next(&size, name, NULL);
 	ASSERT(rc == OPAL_PARAMETER);
 	// Size too small
 	size = 1;
-	rc = opal_secvar_read_next(&size, name, vendor);
+	rc = secvar_get_next(&size, name, vendor);
 	ASSERT(rc == OPAL_PARTIAL);
 	ASSERT(size == 10);
 
 	// NULL size pointer
-	rc = opal_secvar_read_next(NULL, name, vendor);
+	rc = secvar_get_next(NULL, name, vendor);
 	ASSERT(rc == OPAL_PARAMETER);
 
 	// zero size
 	size = 0;
-	rc = opal_secvar_read_next(&size, name, vendor);
+	rc = secvar_get_next(&size, name, vendor);
 	ASSERT(rc == OPAL_PARAMETER);
 
 	// Non-existing previous variable
 	size = 1024;
 	memcpy(name, L"foobar", 7*2);
-	rc = opal_secvar_read_next(&size, name, vendor);
+	rc = secvar_get_next(&size, name, vendor);
 	ASSERT(rc == OPAL_PARAMETER);
 
 	memset(name, 1, sizeof(name));
-	rc = opal_secvar_read_next(&size, name, vendor);
+	rc = secvar_get_next(&size, name, vendor);
 	ASSERT(rc == OPAL_PARAMETER);
 
 	secvar_enabled = 0;
-	rc = opal_secvar_read_next(&size, name, vendor);
+	rc = secvar_get_next(&size, name, vendor);
 	ASSERT(rc == OPAL_HARDWARE);
 
 	clear_bank(&active_bank);

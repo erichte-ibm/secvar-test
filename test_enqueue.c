@@ -16,38 +16,38 @@ int run_test(void)
 	/*** Bad cases first this time ***/
 	// Parameter checks
 	// null name
-	rc = opal_secvar_enqueue(NULL, vendor, attributes, data_size, data);
+	rc = secvar_enqueue(NULL, vendor, attributes, data_size, data);
 	ASSERT(rc == OPAL_PARAMETER);
 	ASSERT(list_empty(&update_bank));
 
 	// name is empty
-	rc = opal_secvar_enqueue(name, vendor, attributes, data_size, data);
+	rc = secvar_enqueue(name, vendor, attributes, data_size, data);
 	ASSERT(rc == OPAL_PARAMETER);
 	ASSERT(list_empty(&update_bank));
 
 	// null vendor
 	name[0] = 'a'; // fix "empty names"
-	rc = opal_secvar_enqueue(name, NULL, attributes, data_size, data);
+	rc = secvar_enqueue(name, NULL, attributes, data_size, data);
 	ASSERT(rc == OPAL_PARAMETER);
 	ASSERT(list_empty(&update_bank));
 
 	// null data
-	rc = opal_secvar_enqueue(name, vendor, attributes, data_size, NULL);
+	rc = secvar_enqueue(name, vendor, attributes, data_size, NULL);
 	ASSERT(rc == OPAL_PARAMETER);
 	ASSERT(list_empty(&update_bank));
 
 	// oddball -- we don't support deletion (yet?)
-	rc = opal_secvar_enqueue(name, vendor, attributes, 0, data);
+	rc = secvar_enqueue(name, vendor, attributes, 0, data);
 	ASSERT(rc == OPAL_UNSUPPORTED);
 	ASSERT(list_empty(&update_bank));
 
 	memset(name, 1, sizeof(name));
-	rc = opal_secvar_enqueue(name, vendor, attributes, data_size, data);
+	rc = secvar_enqueue(name, vendor, attributes, data_size, data);
 	ASSERT(rc == OPAL_PARAMETER);
 	memset(name, 0, sizeof(name));
 
 	secvar_enabled = 0;
-	rc = opal_secvar_enqueue(name, vendor, attributes, data_size, data);
+	rc = secvar_enqueue(name, vendor, attributes, data_size, data);
 	ASSERT(rc == OPAL_HARDWARE);
 	secvar_enabled = 1;
 
@@ -55,12 +55,12 @@ int run_test(void)
 	/*** Good cases ***/
 	// TODO: add data?
 	memcpy(name, L"test", 4*2);
-	rc = opal_secvar_enqueue(name, vendor, attributes, data_size, data);
+	rc = secvar_enqueue(name, vendor, attributes, data_size, data);
 	ASSERT(rc == OPAL_SUCCESS);
 	ASSERT(list_length(&update_bank) == 1);
 
 	memcpy(name, L"foobar", 6*2);
-	rc = opal_secvar_enqueue(name, vendor, attributes, data_size, data);
+	rc = secvar_enqueue(name, vendor, attributes, data_size, data);
 	ASSERT(rc == OPAL_SUCCESS);
 	ASSERT(list_length(&update_bank) == 2);
 
