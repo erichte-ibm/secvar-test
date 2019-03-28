@@ -171,8 +171,8 @@ int main(int argc, char **argv)
 
 
 	// Clean up for the test cases
-	clear_bank(&active_bank);
-	clear_bank(&update_bank);
+	clear_bank_list(&variable_bank);
+	clear_bank_list(&update_bank);
 	free(secboot_image);
 
 	return ret;

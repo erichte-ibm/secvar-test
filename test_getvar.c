@@ -23,7 +23,7 @@ int run_test(void)
 	// List should be empty at start
 	rc = secvar_get(name, vendor, &attributes, &size, data);
 	ASSERT(rc == OPAL_EMPTY);
-	ASSERT(list_length(&active_bank) == 0);
+	ASSERT(list_length(&variable_bank) == 0);
 
 	// Manually add variables, and check get_variable call
 	memcpy(var.name, name, sizeof(L"test"));
@@ -31,9 +31,9 @@ int run_test(void)
 	var.attributes = 27;
 	var.data_size = 16;
 	memcpy(var.data, "foobar", sizeof("foobar"));
-	list_add_tail(&active_bank, &var.link);
+	list_add_tail(&variable_bank, &var.link);
 
-	ASSERT(list_length(&active_bank) == 1);
+	ASSERT(list_length(&variable_bank) == 1);
 
 	// Test variable size query
 	size = 0;

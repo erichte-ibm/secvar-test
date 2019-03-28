@@ -65,7 +65,7 @@ int run_test(void)
 	ASSERT(list_length(&update_bank) == 2);
 
 	// Empty the in-memory cache, and reload from "pnor"
-	clear_bank(&update_bank);
+	clear_bank_list(&update_bank);
 	ASSERT(list_empty(&update_bank));
 	secvar_load_update_bank(&update_bank);
 	ASSERT(list_length(&update_bank) == 2);
@@ -76,6 +76,8 @@ int run_test(void)
 	var = list_next(&update_bank, var, link);
 	ASSERT(var);
 	ASSERT(!memcmp(var->name, L"foobar", 6*2));
+
+	free(data);
 
 	return 0;
 

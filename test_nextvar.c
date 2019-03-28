@@ -16,30 +16,30 @@ int run_test(void)
 
 	// Load up the bank with some variables.
 	// If these fail, we have bigger issues.
-	ASSERT(list_length(&active_bank) == 0);
+	ASSERT(list_length(&variable_bank) == 0);
 	tmpvar = zalloc(sizeof(struct secvar));
 	memcpy(tmpvar->name, L"test1", 5*2);
 	tmpvar->attributes = 27;
 	tmpvar->data_size = 16;
 	tmpvar->data = zalloc(16); // unused
-	list_add_tail(&active_bank, &tmpvar->link);
-	ASSERT(list_length(&active_bank) == 1);
+	list_add_tail(&variable_bank, &tmpvar->link);
+	ASSERT(list_length(&variable_bank) == 1);
 
 	tmpvar = zalloc(sizeof(struct secvar));
 	memcpy(tmpvar->name, L"test2", 5*2);
 	tmpvar->attributes = 32;
 	tmpvar->data_size = 10;
 	tmpvar->data = zalloc(10); // unused
-	list_add_tail(&active_bank, &tmpvar->link);
-	ASSERT(list_length(&active_bank) == 2);
+	list_add_tail(&variable_bank, &tmpvar->link);
+	ASSERT(list_length(&variable_bank) == 2);
 
 	tmpvar = zalloc(sizeof(struct secvar));
 	memcpy(tmpvar->name, L"test3", 5*2);
 	tmpvar->attributes = 16;
 	tmpvar->data_size = 32;
 	tmpvar->data = zalloc(32); // unused
-	list_add_tail(&active_bank, &tmpvar->link);
-	ASSERT(list_length(&active_bank) == 3);
+	list_add_tail(&variable_bank, &tmpvar->link);
+	ASSERT(list_length(&variable_bank) == 3);
 
 	// Test sequential nexts
 	// first item
@@ -101,7 +101,7 @@ int run_test(void)
 	rc = secvar_get_next(&size, name, vendor);
 	ASSERT(rc == OPAL_HARDWARE);
 
-	clear_bank(&active_bank);
+	clear_bank_list(&variable_bank);
 
 	return 0;
 }
