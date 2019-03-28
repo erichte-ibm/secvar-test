@@ -1,6 +1,7 @@
 ## Building tests
 
 Run `make` to build all the tests.
+The Makefile assumes that the target skiboot tree is located at `../skiboot`, override `SKIBOOT_PATH` to change.
 `make run` will execute all the tests for feature checks.
 `make valgrind` will run all the tests through valgrind, and complain if there are any errors.
 Individual tests can be run with `make run_test_<name>`, e.g. `make run_test_void` will run the canary void test.
